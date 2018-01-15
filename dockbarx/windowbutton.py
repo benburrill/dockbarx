@@ -496,6 +496,8 @@ class WindowItem(CairoButton):
             self.opacify_sid = \
                 gobject.timeout_add(100, self.__opacify)
 
+        self.group_r().reveal_window(self, event)
+
     def do_leave_notify_event(self, event):
         # In compiz there is a enter and a leave
         # event before a press event.

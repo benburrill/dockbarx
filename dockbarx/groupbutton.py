@@ -151,6 +151,7 @@ class Group(ListOfWindows):
         self.opacified = False
         self.opacify_sid = None
         self.deopacify_sid = None
+        self.reveal_sid = None
         self.menu_is_shown = False
         self.menu = None
         self.media_controls = None
@@ -497,6 +498,15 @@ class Group(ListOfWindows):
         if self.deopacify_sid:
             gobject.source_remove(self.deopacify_sid)
             self.deopacify_sid = None
+
+    def reveal_window(self, window_button, event):
+        if self.reveal_sid:
+            gobject.source_remove(self.reveal_sid)
+
+        window = window_button.window_r()
+        self.reveal_sid = gobject.timeout_add(
+            1000, window.action_select_window, window_button, event
+        )
 
 
     #### Media Controls
@@ -1699,7 +1709,6 @@ class GroupButton(CairoAppButton):
             gobject.source_remove(self.opacify_sid)
             self.opacify_sid = None
 
-
     #### DnD (source)
     def do_drag_begin(self, drag_context):
         group = self.group_r()
@@ -1886,10 +1895,6 @@ class GroupButton(CairoAppButton):
         if self.globals.settings["opacify"] and \
            self.globals.settings["opacify_group"]:
             self.opacify(delay)
-        # Select on hover
-        umw = group.get_unminimized_windows()
-        if umw:
-            umw[0].action_select_window(self, event)
 
     def do_leave_notify_event(self, event):
         group = self.group_r()
